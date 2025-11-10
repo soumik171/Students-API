@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	// must provide the location of folder types, not inbuilt types like:"go/types"
+	"github.com/go-playground/validator/v10"
 	"github.com/soumik171/Students-API/internal/types"
 	"github.com/soumik171/Students-API/internal/utils/response"
 )
@@ -46,6 +47,19 @@ func Create() http.HandlerFunc {
 
 		if err != nil {
 			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+		}
+
+		// Request Validation:-->
+
+		// missing element(error) validate:
+
+		errVal := validator.New().Struct(student)
+ 
+		if errVal != nil {
+			validateErrs := errVal.(validator.ValidationErrors) // typecast to slice
+			response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrs))
+
+			return
 		}
 
 		// w.Write([]byte("welcome to students api")) // convert string into byte & pass that to Write()

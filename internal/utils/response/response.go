@@ -2,7 +2,11 @@ package response
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Response struct {
@@ -28,9 +32,32 @@ func WriteJson(w http.ResponseWriter, status int, data any) error {
 	return json.NewEncoder(w).Encode(data)
 }
 
+// For general error:
 func GeneralError(err error) Response {
 	return Response{
 		Status: StatusError,
 		Error:  err.Error(),
+	}
+}
+
+// For validate error:
+func ValidationError(errs validator.ValidationErrors) Response {
+	// return the list of errors
+	var errMsgs []string
+
+	for _, err := range errs {
+		switch err.ActualTag() {
+		case "required":
+			errMsgs = append(errMsgs, fmt.Sprintf("field %s is required feild", err.Field())) //return the fieldname of the struct
+
+		default:
+			errMsgs = append(errMsgs, fmt.Sprintf("field %s is invalid field", err.Field()))
+
+		}
+	}
+
+	return Response{
+		Status: StatusError,
+		Error:  strings.Join(errMsgs, ","), // By using string packages, can convert the slice elements into strings
 	}
 }
