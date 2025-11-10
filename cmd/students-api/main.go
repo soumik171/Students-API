@@ -6,12 +6,13 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
-	"os"
+	"os"		
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/soumik171/Students-API/internal/config"
+	"github.com/soumik171/Students-API/internal/http/handlers/student"
 )
 
 func main() {
@@ -25,13 +26,10 @@ func main() {
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome to students api")) // convert string into byte & pass that to Write()
-
-	})
+	router.HandleFunc("/api/students", student.Create())
 
 	// setup server
-
+ 
 	server := http.Server{
 		Addr:    cfg.Addr,
 		Handler: router,

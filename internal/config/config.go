@@ -43,7 +43,7 @@ func MustLoad() *Config {
 	// 2.
 	if configPath == "" {
 		flags := flag.String("config", "", "path to the configuration file") // Declares the flag
-		flag.Parse()                                                         // Fill the flag with actual value
+		flag.Parse()                                                         // Fill the flag with actual value	
 
 		configPath = *flags
 
