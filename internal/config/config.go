@@ -17,9 +17,9 @@ type HttpServer struct {
 // env-default:"production"
 
 type Config struct {
-	Env        string `yaml:"env" env:"ENV" env-required:"true" `
-	Storage    string `yaml:"storage_path" env-required:"true"`
-	HttpServer `yaml:"http_server"`
+	Env          string `yaml:"env" env:"ENV" env-required:"true" `
+	Storage_Path string `yaml:"storage_path" env-required:"true"`
+	HttpServer   `yaml:"http_server"`
 }
 
 // Inside MustLoad function->
@@ -43,7 +43,7 @@ func MustLoad() *Config {
 	// 2.
 	if configPath == "" {
 		flags := flag.String("config", "", "path to the configuration file") // Declares the flag
-		flag.Parse()                                                         // Fill the flag with actual value	
+		flag.Parse()                                                         // Fill the flag with actual value
 
 		configPath = *flags
 

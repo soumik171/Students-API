@@ -31,7 +31,9 @@ go.work.sum
 # .idea/
 # .vscode/
 
-storage
 
-# Ignore the root config
+# Ignore the root config, storage
+
 /config  
+
+/storage  
