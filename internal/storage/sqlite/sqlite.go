@@ -80,7 +80,9 @@ func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
 
 	var student types.Student
 
-	errV := stmt.QueryRow(id).Scan(&student.Id, &student.Name, &student.Email, &student.Age) //pass the ref
+	//pass the ref, if no need to parse then use Query, if have to pass something, then have to use based on which attributes i wanna use like:QueryRow(),QueryContext()....
+
+	errV := stmt.QueryRow(id).Scan(&student.Id, &student.Name, &student.Email, &student.Age)
 
 	if errV != nil {
 		if errV == sql.ErrNoRows {
@@ -90,5 +92,38 @@ func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
 	}
 
 	return student, nil
+
+}
+
+func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
+	stmt, err := s.Db.Prepare("SELECT id,name,email,age FROM students")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var students []types.Student //as return list, create a container that hold the result
+
+	// For list have to use the for loop
+	for rows.Next() {
+		var student types.Student
+		err := rows.Scan(&student.Id, &student.Name, &student.Email, &student.Age)
+
+		if err != nil {
+			return nil, err
+		}
+
+		students = append(students, student)
+	}
+
+	return students, nil
 
 }

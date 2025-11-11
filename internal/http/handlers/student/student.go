@@ -19,11 +19,6 @@ import (
 // dependency inject from Storage struct
 func Create(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// if r.Method != http.MethodPost {
-		// 	http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		// 	return
-		// }
-
 		// In go, we cannot directly pass the json json data, we have to decode that, then pass the data to struct
 
 		slog.Info("creating a student")
@@ -107,4 +102,21 @@ func GetById(storage storage.Storage) http.HandlerFunc {
 
 		response.WriteJson(w, http.StatusOK, student)
 	}
+}
+
+func GetList(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("getting all students")
+
+		students, err := storage.GetStudentsList()
+
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		response.WriteJson(w, http.StatusOK, students)
+
+	}
+
 }
