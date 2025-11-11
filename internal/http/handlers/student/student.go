@@ -17,6 +17,8 @@ import (
 )
 
 // dependency inject from Storage struct
+
+// Creating new student
 func Create(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// In go, we cannot directly pass the json json data, we have to decode that, then pass the data to struct
@@ -80,6 +82,8 @@ func Create(storage storage.Storage) http.HandlerFunc {
 
 }
 
+// Student Info Get by Id:
+
 func GetById(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -121,6 +125,8 @@ func GetList(storage storage.Storage) http.HandlerFunc {
 
 }
 
+// Update the student info:
+
 func UpdateById(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -159,5 +165,29 @@ func UpdateById(storage storage.Storage) http.HandlerFunc {
 
 		slog.Info("student data updated successfully", slog.String("id", id))
 
+	}
+}
+
+// Delete the student by id:
+
+func DeleteById(s storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		idStr := r.PathValue("id")
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+		err = s.DeleteStudent(id)
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+		response.WriteJson(w, http.StatusOK, fmt.Sprintf("student with id %d deleted successfully", id))
+
+		slog.Info("data deleted succesfully of user", slog.String("id", idStr))
 	}
 }
