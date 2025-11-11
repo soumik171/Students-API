@@ -120,3 +120,44 @@ func GetList(storage storage.Storage) http.HandlerFunc {
 	}
 
 }
+
+func UpdateById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		// get the id from the url
+
+		id := r.PathValue("id")
+		slog.Info("updating a student", slog.String("id", id))
+
+		intId, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+		// Decode the request body into Student struct
+
+		var student types.Student
+
+		if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+		// update db:
+
+		updatedStudent, err := storage.UpdateStudentInfo(intId, student)
+
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		// return the updated data as JSON
+
+		response.WriteJson(w, http.StatusOK, updatedStudent)
+
+		slog.Info("student data updated successfully", slog.String("id", id))
+
+	}
+}

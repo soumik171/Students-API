@@ -39,6 +39,8 @@ func New(cfg *config.Config) (*Sqlite, error) { //return instance of Sqlite and 
 
 }
 
+// Implement the interface of Creating student:
+
 func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error) {
 
 	// Declare the query:
@@ -69,6 +71,8 @@ func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error
 
 }
 
+// Implement the interface of getting Student by Id :
+
 func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
 	stmt, err := s.Db.Prepare("SELECT * FROM students WHERE id = ? LIMIT 1")
 
@@ -94,6 +98,8 @@ func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
 	return student, nil
 
 }
+
+// Implement the interface of Student List:
 
 func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
 	stmt, err := s.Db.Prepare("SELECT id,name,email,age FROM students")
@@ -127,3 +133,42 @@ func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
 	return students, nil
 
 }
+
+// Implement the interface of updating student:
+
+func (s *Sqlite) UpdateStudentInfo(id int64, student types.Student) (types.Student, error) {
+	stmt, err := s.Db.Prepare("UPDATE students SET name=?, email=?, age=? WHERE id=?")
+
+	if err != nil {
+		return types.Student{}, err
+	}
+
+	defer stmt.Close()
+
+	result, err := stmt.Exec(student.Name, student.Email, student.Age, id)
+	if err != nil {
+		return types.Student{}, err
+	}
+
+	RowsAffected, err := result.RowsAffected()
+
+	if err != nil {
+		return types.Student{}, err
+	}
+	if RowsAffected == 0 {
+		return types.Student{}, fmt.Errorf("no student found with id %d", id)
+	}
+
+	var UpdateStudent types.Student
+
+	// Using select query to diaplay the updated data, if don't want to update data, then no need to use the select query, just print the "process successed" like that
+
+	if err := s.Db.QueryRow("SELECT id, name, email, age FROM students WHERE id=?", id).Scan(&UpdateStudent.Id, &UpdateStudent.Name, &UpdateStudent.Email, &UpdateStudent.Age); err != nil {
+		return types.Student{}, err
+	}
+
+	return UpdateStudent, nil
+
+}
+
+// Implement the interface of deleting student:
