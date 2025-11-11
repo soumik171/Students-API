@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -23,7 +22,7 @@ func main() {
 
 	// database setup
 
-	_, err := sqlite.New(cfg)
+	storage, err := sqlite.New(cfg) // if use postgre, then use postgre instead of sqlite
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +33,8 @@ func main() {
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("/api/students", student.Create())
+	router.HandleFunc("POST /api/students", student.Create(storage))
+	router.HandleFunc("GET /api/students/{id}", student.GetById(storage))
 
 	// setup server
 
@@ -44,7 +44,7 @@ func main() {
 	}
 
 	slog.Info("server started", slog.String("address", cfg.Addr))
-	fmt.Printf("server started %s", cfg.Addr)
+	// fmt.Printf("server started %s", cfg.Addr)
 
 	done := make(chan os.Signal, 1)
 
